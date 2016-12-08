@@ -15,7 +15,56 @@ Line Loop: <input type="radio" name="prim" onchange="ptype=gl.LINE_LOOP; setTess
 Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTess(ptype);">
 </form>
 
+<script id="wave-vertex" type="x-shader/x-vertex" >
+    attribute vec3 coordinates;
+    uniform mat4 mvp;
+    uniform float time;
+    void main(void)
+    {
+        gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
+    }
+</script>
+
+<script id="wave-fragment" type="x-shader/x-fragment" >
+    void main(void)
+    {
+        gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0);
+    }
+</script>
+
 <script>
+    function getShader(gl, id) {
+
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+        return shader;
+    }
 
     /*============== Creating a canvas ====================*/
     var canvas = document.getElementById('my_Canvas');
@@ -169,31 +218,9 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
             ' gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);' +
             '}';
 
+        var vertShader = getShader(gl, "wave-vertex");
+        var fragShader = getShader(gl, "wave-fragment");
 
-
-        // Create a vertex shader object
-        var vertShader = gl.createShader(gl.VERTEX_SHADER);
-
-        // Attach vertex shader source code
-        gl.shaderSource(vertShader, vertCode);
-
-        // Compile the vertex shader
-        gl.compileShader(vertShader);
-
-        //fragment shader source code
-        var fragCode =
-            'void main(void) {' +
-            ' gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0);' +
-            '}';
-
-        // Create fragment shader object
-        var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-        // Attach fragment shader source code
-        gl.shaderSource(fragShader, fragCode);
-
-        // Compile the fragmentt shader
-        gl.compileShader(fragShader);
 
         // Create a shader program object to store
         // the combined shader program
