@@ -21,10 +21,12 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
     attribute vec3 coordinates;
     uniform mat4 mvp;
     uniform float time;
-    uniform float amplitudeList[1];
-    uniform float steepnessList[1];
-    uniform float phaseConstantList[1];
-    uniform vec2 dirList[1];
+    uniform int numWaves;
+    uniform float amplitudeList[2];
+    uniform float steepnessList[2];
+    uniform float phaseConstantList[2];
+    uniform float wList[2];
+    uniform vec2 dirList[2];
 
     void main(void)
     {
@@ -32,14 +34,16 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         float origx = x;
         float y = coordinates[1];
         float origy = y;
-        float z = 0.0; //coordinates[2];
-        float w = 0.8; // TODO: Remove
+        float z = coordinates[2];
 
-        for(int i = 0; i < 1; i++)
+        for(int i = 0; i < 5000; i++)
         {
-            x = x + steepnessList[i] * amplitudeList[i] * dirList[i][0] * cos(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
-            y = y + steepnessList[i] * amplitudeList[i] * dirList[i][1] * cos(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
-            z = z + amplitudeList[i] * sin(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            if(i == numWaves)
+                break;
+
+            x = x + steepnessList[i] * amplitudeList[i] * dirList[i][0] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            y = y + steepnessList[i] * amplitudeList[i] * dirList[i][1] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
         }
 
         gl_Position = mvp * vec4(x, y, z, 1.0);
@@ -172,7 +176,7 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         var oy;
         document.getElementById("tessval").innerHTML = x;
 
-        tess(x,0.7,0.3,0.3);
+        tess(x,3.0,-3,1);
         draw(ptype);
         }
 
@@ -222,8 +226,6 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         }
     }
 
-    generateWaves(1);
-
     // Wave Parameter Bounds
     var steepnessMin = 0.0;
     var steepnessMax = 1.0;
@@ -233,11 +235,12 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
     var phaseConstMax = 2.0;
 
     // Generated Wave Parameters
-    var numWaves = 1;
-    var steepnessList = [2.2];
-    var amplitudeList = [0.2];
-    var dirList = [1, 0];
-    var phaseConstantList = [1.6];
+    var numWaves = 3;
+    var steepnessList = [2.2, 1.4, 1.1];
+    var amplitudeList = [0.2, 0.3, 0.1];
+    var dirList = [1, 0, 0, 1, -1, 1];
+    var phaseConstantList = [1.6, 0.8, 0.2];
+    var wList = [0.8, 0.6, 0.2];
 
     function draw(ptype) {
 
@@ -320,10 +323,12 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         gl.uniformMatrix4fv(amvp, false, mat);
 
         // Wave Parameters
+        gl.uniform1i(gl.getUniformLocation(shaderProgram, "numWaves"), numWaves);
         gl.uniform1fv(gl.getUniformLocation(shaderProgram, "amplitudeList"), new Float32Array(amplitudeList));
         gl.uniform1fv(gl.getUniformLocation(shaderProgram, "steepnessList"), new Float32Array(steepnessList));
         gl.uniform1fv(gl.getUniformLocation(shaderProgram, "phaseConstantList"), new Float32Array(phaseConstantList));
         gl.uniform2fv(gl.getUniformLocation(shaderProgram, "dirList"), new Float32Array(dirList));
+        gl.uniform1fv(gl.getUniformLocation(shaderProgram, "wList"), new Float32Array(wList));
 
         // Clear the canvas
         gl.clearColor(0.5, 0.5, 0.5, 0.9);
