@@ -16,16 +16,40 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
 </form>
 
 <script id="wave-vertex" type="x-shader/x-vertex" >
+    precision mediump float;
+
     attribute vec3 coordinates;
     uniform mat4 mvp;
     uniform float time;
+    uniform float amplitudeList[1];
+    uniform float steepnessList[1];
+    uniform float phaseConstantList[1];
+    uniform vec2 dirList[1];
+
     void main(void)
     {
-        gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
+        float x = coordinates[0];
+        float origx = x;
+        float y = coordinates[1];
+        float origy = y;
+        float z = 0.0; //coordinates[2];
+        float w = 0.8; // TODO: Remove
+
+        for(int i = 0; i < 1; i++)
+        {
+            x = x + steepnessList[i] * amplitudeList[i] * dirList[i][0] * cos(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            y = y + steepnessList[i] * amplitudeList[i] * dirList[i][1] * cos(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            z = z + amplitudeList[i] * sin(dot(w * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+        }
+
+        gl_Position = mvp * vec4(x, y, z, 1.0);
+        //gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
     }
 </script>
 
 <script id="wave-fragment" type="x-shader/x-fragment" >
+    precision mediump float;
+
     void main(void)
     {
         gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0);
@@ -181,6 +205,40 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
     var startTime = new Date().getTime();
 
 
+
+
+    // Wave Parameter Functions
+    function generateWaves(count)
+    {
+        numWaves = count;
+        steepnessList = [];
+        amplitudeList = [];
+        dirList = [];
+        phaseConstantList = [];
+
+        for(var i = 0; i < count; i++)
+        {
+
+        }
+    }
+
+    generateWaves(1);
+
+    // Wave Parameter Bounds
+    var steepnessMin = 0.0;
+    var steepnessMax = 1.0;
+    var amplitudeMin = 0.01;
+    var amplitudeMax = 1.0;
+    var phaseConstMin = 1.0;
+    var phaseConstMax = 2.0;
+
+    // Generated Wave Parameters
+    var numWaves = 1;
+    var steepnessList = [2.2];
+    var amplitudeList = [0.2];
+    var dirList = [1, 0];
+    var phaseConstantList = [1.6];
+
     function draw(ptype) {
 
         // Create an empty buffer object to store vertex buffer
@@ -208,24 +266,10 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         /*================ Shaders ====================*/
-
-        // Vertex shader source code
-        var vertCode =
-            'attribute vec3 coordinates;' +
-            'uniform mat4 mvp;'+
-            'uniform float time;'+
-            'void main(void) {' +
-            ' gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);' +
-            '}';
-
         var vertShader = getShader(gl, "wave-vertex");
         var fragShader = getShader(gl, "wave-fragment");
 
-
-        // Create a shader program object to store
-        // the combined shader program
         var shaderProgram = gl.createProgram();
-
 
         // Attach a vertex shader
         gl.attachShader(shaderProgram, vertShader);
@@ -239,12 +283,12 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         var timeNow =(new Date().getTime() -startTime)/1000;
 
 
-       // console.log(timeNow);
+       //console.log(timeNow);
 
 
         // Use the combined shader program object
         gl.useProgram(shaderProgram);
-        gl.uniform1f( gl.getUniformLocation( shaderProgram, 'time' ), timeNow );
+        gl.uniform1f(gl.getUniformLocation( shaderProgram, 'time' ), timeNow);
 
         /*======= Associating shaders to buffer objects =======*/
 
@@ -273,9 +317,13 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         var amvp = gl.getUniformLocation(shaderProgram, "mvp");
         var mat = getTransformationMatrix(ax, ay, az);
 
-
-
         gl.uniformMatrix4fv(amvp, false, mat);
+
+        // Wave Parameters
+        gl.uniform1fv(gl.getUniformLocation(shaderProgram, "amplitudeList"), new Float32Array(amplitudeList));
+        gl.uniform1fv(gl.getUniformLocation(shaderProgram, "steepnessList"), new Float32Array(steepnessList));
+        gl.uniform1fv(gl.getUniformLocation(shaderProgram, "phaseConstantList"), new Float32Array(phaseConstantList));
+        gl.uniform2fv(gl.getUniformLocation(shaderProgram, "dirList"), new Float32Array(dirList));
 
         // Clear the canvas
         gl.clearColor(0.5, 0.5, 0.5, 0.9);
