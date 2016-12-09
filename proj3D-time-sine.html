@@ -2,10 +2,10 @@
 <html>
 <title>CG Project - LG, CP, MC</title>
 <body>
-<canvas width = "570" height = "570" id = "my_Canvas"></canvas>
+<canvas width = "1024" height = "600" id = "my_Canvas"></canvas>
 <br>
 
-Tesselation Level (<b id="tessval"></b>): <input type="range" id="myRange" value="7"  min="0" max="8" oninput="setTess(ptype);">
+Tesselation Level (<b id="tessval"></b>): <input type="range" id="myRange" value="5"  min="0" max="8" oninput="setTess(ptype);">
 
 <br>
 <form action="">
@@ -14,6 +14,7 @@ Lines: <input type="radio" name="prim" onchange="ptype=gl.LINES; setTess(ptype);
 Line Loop: <input type="radio" name="prim" onchange="ptype=gl.LINE_LOOP; setTess(ptype);">
 Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTess(ptype);">
 </form>
+Rotate Camera with < Up,Down,Left,Right >
 
 <script id="wave-vertex" type="x-shader/x-vertex" >
     precision mediump float;
@@ -43,7 +44,7 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
 
             x = x + steepnessList[i] * amplitudeList[i] * dirList[i][0] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
             y = y + steepnessList[i] * amplitudeList[i] * dirList[i][1] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
-            z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
+            z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time)-0.2;
         }
 
         gl_Position = mvp * vec4(x, y, z, 1.0);
@@ -56,7 +57,7 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
 
     void main(void)
     {
-        gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0);
+        gl_FragColor = vec4(0.9, 0.5, 1.0, 1.0);
     }
 </script>
 
@@ -176,12 +177,14 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         var oy;
         document.getElementById("tessval").innerHTML = x;
 
-        tess(x,3.0,-3,1);
+        tess(x,1.0,0.0,0.0);
         draw(ptype);
         }
 
 
     setInterval("draw(ptype);", 40);
+    document.onkeydown = handleKeyDown;
+
 
     ptype=gl.TRIANGLES;
     setTess(ptype);
@@ -228,7 +231,7 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
 
     // Wave Parameter Bounds
     var steepnessMin = 0.0;
-    var steepnessMax = 1.0;
+    var steepnessMax = 0.8;
     var amplitudeMin = 0.01;
     var amplitudeMax = 1.0;
     var phaseConstMin = 1.0;
@@ -236,11 +239,41 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
 
     // Generated Wave Parameters
     var numWaves = 3;
-    var steepnessList = [2.2, 1.4, 1.1];
-    var amplitudeList = [0.2, 0.3, 0.1];
+    var steepnessList = [0.159, 0.51, 0.159];
+    var amplitudeList = [0.1, 0.05, 0.1];
     var dirList = [1, 0, 0, 1, -1, 1];
-    var phaseConstantList = [1.6, 0.8, 0.2];
-    var wList = [0.8, 0.6, 0.2];
+    var phaseConstantList = [8.169, 5.2, 8.12];
+    var wList = [9.28, 2.48, 7.2];
+
+
+
+
+    var ax=-80; ///70
+    var ay =0;
+    var az=20; ///50
+    function handleKeyDown(event) {
+
+        if (event.keyCode == 37) {
+            //Left Arrow Key
+            az+=-5*-2*Math.PI/360;
+        } else if (event.keyCode == 38) {
+            //Up Arrow Key
+            ax+=5*-2*Math.PI/360;
+        } else if (event.keyCode == 39) {
+            //Right Arrow Key
+            az+=5*-2*Math.PI/360;
+        } else if (event.keyCode == 40) {
+            //Down Arrow Key
+            ax+=-5*-2*Math.PI/360;
+
+        }
+        //ax *= -2*Math.PI/360; ay *= -2*Math.PI/360; az *= -2*Math.PI/360;
+    }
+
+    //Proj matrix convert
+    ax *= -2*Math.PI/360; ay *= -2*Math.PI/360; az *= -2*Math.PI/360;
+
+
 
     function draw(ptype) {
 
@@ -310,15 +343,10 @@ Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTe
         // Enable the attribute
         gl.enableVertexAttribArray(coord);
 
-        /*=========Drawing the triangle===========*/
 
-        var ax=-80; ///70
-        var ay =0;
-        var az=20; ///50
-
-        ax *= -2*Math.PI/360; ay *= -2*Math.PI/360; az *= -2*Math.PI/360;
         var amvp = gl.getUniformLocation(shaderProgram, "mvp");
         var mat = getTransformationMatrix(ax, ay, az);
+
 
         gl.uniformMatrix4fv(amvp, false, mat);
 
