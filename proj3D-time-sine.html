@@ -44,7 +44,7 @@ Rotate Camera with < Up,Down,Left,Right >
 
             x = x + steepnessList[i] * amplitudeList[i] * dirList[i][0] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
             y = y + steepnessList[i] * amplitudeList[i] * dirList[i][1] * cos(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
-            z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time)-0.2;
+            z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
         }
 
         gl_Position = mvp * vec4(x, y, z, 1.0);
@@ -127,7 +127,7 @@ Rotate Camera with < Up,Down,Left,Right >
                 //Get Y val
                 vertices[x + 1 +y*num*3  ] = 1.0-offy-(y)*(dist*2)/(num-1);
                 //Get Z val (zero for uniform plane)
-                vertices[x + 2 +y*num*3 ] = 0;
+                vertices[x + 2 +y*num*3 ] = -0.6;
                 x += 2;
 
             }
