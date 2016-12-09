@@ -142,7 +142,6 @@ Rotate Camera with < Up,Down,Left,Right >
         return shader;
     }
 
-    /*============== Creating a canvas ====================*/
     var canvas = document.getElementById('my_Canvas');
     gl = canvas.getContext('experimental-webgl');
 
@@ -181,8 +180,6 @@ Rotate Camera with < Up,Down,Left,Right >
         }
 
 
-        //console.table(vertices.toString())
-
         //Indices
          indices = [];
         //Ver used for indices index
@@ -211,7 +208,6 @@ Rotate Camera with < Up,Down,Left,Right >
 
     }
 
-
     //tess(0,0.5);
     //draw(gl.LINES);
 
@@ -236,30 +232,24 @@ Rotate Camera with < Up,Down,Left,Right >
     ptype=gl.TRIANGLES;
     setTess(ptype);
 
-    //tess(1,1.0);
-
-    // Gets a transformation matrix given the rotation angles
+    // Get the rotation matrix from given angles
     function getTransformationMatrix(rx, ry, rz)
     {
-        // Pre-computes trigonometric values (mainly for better readability)
+
+        //Store Cosine, and Sin * angles for easier matrix creation
         var cx = Math.cos(rx), sx = Math.sin(rx);
         var cy = Math.cos(ry), sy = Math.sin(ry);
         var cz = Math.cos(rz), sz = Math.sin(rz);
 
-        // Returns matrix
-        return new Float32Array([cy*cz, (sx*sy*cz-cx*sz), (sx*sz+cx*sy*cz), 0,
-            cy*sz, (sx*sy*sz+cx*cz), (cx*sy*sz-sx*cz), 0,
-            -sy,   sx*cy,            cx*cy,            0,
-            0,     0,                0,                1]);
+        // Returns rotation matrix
+        return new Float32Array([cy*cz, (sx*sy*cz-cx*sz), (sx*sz+cx*sy*cz), 0, //Row1
+            cy*sz, (sx*sy*sz+cx*cz),(cx*sy*sz-sx*cz),0, //Row2
+            -sy,sx*cy, cx*cy, 0, //Row3
+            0,0,0,1]);//Row4
     }
 
-
-
-
+    //Get time
     var startTime = new Date().getTime();
-
-
-
 
     // Wave Parameter Functions
     function generateWaves(count)
@@ -293,8 +283,7 @@ Rotate Camera with < Up,Down,Left,Right >
     var wList = [9.28, 2.48, 7.2];
 
 
-
-
+    //Default Scene rotation
     var ax=-110; ///70
     var ay =0;
     var az=20; ///50
@@ -364,9 +353,6 @@ Rotate Camera with < Up,Down,Left,Right >
         gl.linkProgram(shaderProgram);
 
         var timeNow =(new Date().getTime() -startTime)/1000;
-
-
-       //console.log(timeNow);
 
 
         // Use the combined shader program object
