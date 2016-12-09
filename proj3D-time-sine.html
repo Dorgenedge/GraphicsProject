@@ -30,7 +30,7 @@ Rotate Camera with < Up,Down,Left,Right >
     uniform vec2 dirList[50];
 
     varying vec3 vCoord;
-    varying mat3 TBN;
+    varying mat3 invTBN;
 
     void main(void)
     {
@@ -78,12 +78,19 @@ Rotate Camera with < Up,Down,Left,Right >
             z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
         }
 
-        vCoord = coordinates;
-        TBN = mat3(
+        // Normalize final vectors
+        mat3 mvp3x3 = mat3(mvp);
+        T = mvp3x3 * normalize(T);
+        N = mvp3x3 * normalize(N);
+        B = mvp3x3 * normalize(B);
+
+        // Construct invTBN
+        invTBN = mat3(
             vec3(T.x, B.x, N.x),
             vec3(T.y, B.y, N.y),
             vec3(T.z, B.z, N.z));
 
+        vCoord = coordinates;
         gl_Position = mvp * vec4(x, y, z, 1.0);
         //gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
     }
