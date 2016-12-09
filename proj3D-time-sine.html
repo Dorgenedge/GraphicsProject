@@ -20,6 +20,7 @@ Rotate Camera with < Up,Down,Left,Right >
     precision mediump float;
 
     attribute vec3 coordinates;
+    varying vec3 vCoord;
     uniform mat4 mvp;
     uniform float time;
     uniform int numWaves;
@@ -47,6 +48,8 @@ Rotate Camera with < Up,Down,Left,Right >
             z = z + amplitudeList[i] * sin(dot(wList[i] * dirList[i].xy, vec2(origx, origy).xy) + phaseConstantList[i] * time);
         }
 
+        vCoord = coordinates;
+
         gl_Position = mvp * vec4(x, y, z, 1.0);
         //gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
     }
@@ -54,10 +57,12 @@ Rotate Camera with < Up,Down,Left,Right >
 
 <script id="wave-fragment" type="x-shader/x-fragment" >
     precision mediump float;
+    varying vec3 vCoord;
+
 
     void main(void)
     {
-        gl_FragColor = vec4(0.9, 0.5, 1.0, 1.0);
+        gl_FragColor = vec4(vCoord[0]*1.5, vCoord[1], 0.5, 1.0);
     }
 </script>
 
