@@ -5,7 +5,7 @@
 <canvas width = "1024" height = "600" id = "my_Canvas"></canvas>
 <br>
 
-Tesselation Level (<b id="tessval"></b>): <input type="range" id="myRange" value="5"  min="0" max="8" oninput="setTess(ptype);">
+Tesselation Level (<b id="tessval"></b>): <input type="range" id="myRange" value="7"  min="0" max="7" oninput="setTess(ptype);">
 
 <br>
 <form action="">
@@ -194,19 +194,53 @@ Rotate Camera with < Up,Down,Left,Right >
         //Indices
          indices = [];
         //Ver used for indices index
-        var ver=0;
-        for(y=0;y<(num-1);y++) {
-            for (x = 0; x < (num - 1) * 3; x++) {
 
-                //Get X
-                indices[x + y * (num-1) * 3] = ver+y;
-                //Get Y
-                indices[x + 1 + y * (num-1) * 3] = ver + 1+y;
-                //Get Z
-                indices[x + 2 + y * (num-1) * 3] = ver + num+y;
-                x += 2;
-                ver++;
+        var renType =1;
+        //GL_TRIANGLE
+        if (renType==0) {
+            var ver = 0;
+            for (y = 0; y < (num - 1); y++) {
+                for (x = 0; x < (num - 1) * 3; x++) {
+
+                    //Get X
+                    indices[x + y * (num - 1) * 3] = ver + y;
+                    //Get Y
+                    indices[x + 1 + y * (num - 1) * 3] = ver + 1 + y;
+                    //Get Z
+                    indices[x + 2 + y * (num - 1) * 3] = ver + num + y;
+                    x += 2;
+                    ver++;
+                }
             }
+        }
+        //GL_TRIANGLE_STRIP
+        if (renType==1) {
+            var ver = 0;
+            for (y = 0; y < (num - 1); y++) {
+                for (x = 0; x < (num - 1) * 6; x++) {
+
+                    //Top Triangle
+                    //Get v0
+                    indices[x + y * (num - 1) * 6] = ver + y;
+                    //Get v1
+                    indices[x + 1 + y * (num - 1) * 6] = ver + 1 + y;
+                    //Get v2
+                    indices[x + 2 + y * (num - 1) * 6] = ver + num + y;
+                   // x += 2;
+                   // ver++;
+
+                    //Bottom Triangle
+                    //Get v0
+                    indices[x + 3 + y * (num - 1) * 6] = ver + 1+ y;
+                    //Get v1
+                    indices[x + 4 + y * (num - 1) * 6] = ver + num + y;
+                    //Get v2
+                    indices[x + 5 + y * (num - 1) * 6] = ver + num + y + 1;
+                    x += 5;
+                    ver++;
+                }
+            }
+        }
 
         }
 
@@ -217,7 +251,7 @@ Rotate Camera with < Up,Down,Left,Right >
         console.log("Indices: "+indices.length);
         console.log("");
 
-    }
+
 
     //tess(0,0.5);
     //draw(gl.LINES);
@@ -295,9 +329,9 @@ Rotate Camera with < Up,Down,Left,Right >
 
 
     //Default Scene rotation
-    var ax=-110; ///70
+    var ax=-110; ///-110
     var ay =0;
-    var az=20; ///50
+    var az=20; ///20
     function handleKeyDown(event) {
 
         if (event.keyCode == 37) {
