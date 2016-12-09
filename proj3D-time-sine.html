@@ -30,6 +30,9 @@ Rotate Camera with < Up,Down,Left,Right >
     uniform vec2 dirList[50];
 
     varying vec3 vCoord;
+    varying vec3 fPosition;
+    varying vec3 fNormal;
+
     varying mat3 invTBN;
 
     void main(void)
@@ -90,20 +93,28 @@ Rotate Camera with < Up,Down,Left,Right >
             vec3(T.y, B.y, N.y),
             vec3(T.z, B.z, N.z));
 
+        // Pass through new normal and position
+        fPosition = mvp3x3 * vec3(x, y, z);
+        fNormal = N;
+
+        // Extraneous: toremove
         vCoord = coordinates;
         gl_Position = mvp * vec4(x, y, z, 1.0);
-        //gl_Position = mvp * vec4(coordinates[0],coordinates[1],0.2*sin(coordinates[0]*7.5*sin(time)*3.14), 1.0);
     }
 </script>
 
 <script id="wave-fragment" type="x-shader/x-fragment" >
     precision mediump float;
     varying vec3 vCoord;
-    varying mat3 TBN;
 
+    varying vec3 fPosition;
+    varying vec3 fNormal;
+    varying mat3 invTBN;
 
     void main(void)
     {
+        // TODO: move things to TBN space to do lighting
+
         gl_FragColor = vec4(vCoord[0]*1.5, vCoord[1], 0.5, 1.0);
     }
 </script>
