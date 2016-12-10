@@ -118,6 +118,7 @@ Rotate Camera with < Up,Down,Left,Right >
 
         // Extraneous: toremove
         vCoord = coordinates;
+        vCoords = coordinates;
         gl_Position = mvp * vec4(x, y, z, 1.0);
         eye = -gl_Position.xyz;
     }
@@ -526,9 +527,9 @@ Rotate Camera with < Up,Down,Left,Right >
         var ct = 0;
         var img = new Array(6);
         var urls = [
-            "skybox/skyrender0001.jpg", "skybox/skyrender0002.jpg",
-            "skybox/skyrender0003.jpg", "skybox/skyrender0004.jpg",
-            "skybox/skyrender0005.jpg", "skybox/skyrender0006.jpg"
+            "skybox/skyrender0003.jpg", "skybox/skyrender0003.jpg",
+            "skybox/skyrender0003.jpg", "skybox/skyrender0003.jpg",
+            "skybox/skyrender0003.jpg", "skybox/skyrender0003.jpg"
         ];
         for (var i = 0; i < 6; i++) {
             img[i] = new Image();
