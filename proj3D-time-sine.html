@@ -359,7 +359,7 @@ Rotate Camera with < Up,Down,Left,Right >
 
     // Generated Wave Parameters
     var numWaves = 3;
-    var steepnessList = [0.159, 0.51, 0.159];
+    var steepnessList = [0.15, 0.50, 0.15];
     var amplitudeList = [0.1, 0.05, 0.1];
     var dirList = [1, 0, 0, 1, -1, 1];
     var phaseConstantList = [8.169, 5.2, 8.12];
@@ -522,18 +522,19 @@ Rotate Camera with < Up,Down,Left,Right >
 
 
     }
-    function loadSkybox() {
-        var count = 0;
+    function loadTextureCube(urls) {
+        var ct = 0;
         var img = new Array(6);
-        var images = ["skybox/skyrender0001.jpg", "skybox/skyrender0002.jpg",
+        var urls = [
+            "skybox/skyrender0001.jpg", "skybox/skyrender0002.jpg",
             "skybox/skyrender0003.jpg", "skybox/skyrender0004.jpg",
-            "skybox/skyrender0005.jpg", "skybox/skyrender0006.jpg", ];
-
-        for(var i = 0; i < 6; i++) {
+            "skybox/skyrender0005.jpg", "skybox/skyrender0006.jpg"
+        ];
+        for (var i = 0; i < 6; i++) {
             img[i] = new Image();
             img[i].onload = function() {
-                count++;
-                if (count == 6) {
+                ct++;
+                if (ct == 6) {
                     texID = gl.createTexture();
                     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texID);
                     var targets = [
@@ -550,11 +551,11 @@ Rotate Camera with < Up,Down,Left,Right >
                     draw();
                 }
             }
-            img[i].src = images[i];
+            img[i].src = urls[i];
         }
-
     }
-    loadSkybox();
+
+    loadTextureCube();
     //GL TYPES
     // POINTS, LINE_STRIP, LINE_LOOP, LINES,
     // TRIANGLE_STRIP,TRIANGLE_FAN, TRIANGLES
