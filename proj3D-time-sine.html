@@ -5,14 +5,23 @@
 <canvas width = "1024" height = "600" id = "my_Canvas"></canvas>
 <br>
 
-Tesselation Level (<b id="tessval"></b>): <input type="range" id="myRange" value="7"  min="0" max="7" oninput="setTess(ptype);">
+Tesselation Level (<b id="tessval"></b>): <input type="range" id="tessRange" value="7"  min="0" max="7" oninput="setTess(ptype);">
+Wave I A (<b id="W1A"></b>): <input type="range" id="w1Range" value="2"  min="0" max="10" oninput="setW1();">
+Wave II A (<b id="W2A"></b>): <input type="range" id="w2Range" value="1"  min="0" max="10" oninput="setW2()">
+Wave III A (<b id="W3A"></b>): <input type="range" id="w3Range" value="1"  min="0" max="10" oninput="setW3()">
 
 <br>
 <form action="">
 Triangles: <input type="radio" name="prim" onchange="ptype=gl.TRIANGLES; setTess(ptype);" checked="checked">
-Lines: <input type="radio" name="prim" onchange="ptype=gl.LINES; setTess(ptype);">
-Line Loop: <input type="radio" name="prim" onchange="ptype=gl.LINE_LOOP; setTess(ptype);">
-Line Strip: <input type="radio" name="prim" onchange="ptype=gl.LINE_STRIP; setTess(ptype);">
+Wireframe: <input type="radio" name="prim" onchange="ptype=gl.LINES; setTess(ptype);">
+</form>
+
+
+
+<form action="">
+    All Triangles: <input type="radio" name="tri" onchange="renType=1; setTess(ptype);" checked="checked">
+    Half Triangles: <input type="radio" name="tri" onchange="renType=0; setTess(ptype);">
+
 </form>
 Rotate Camera with < Up,Down,Left,Right >
 
@@ -195,8 +204,8 @@ Rotate Camera with < Up,Down,Left,Right >
          indices = [];
         //Ver used for indices index
 
-        var renType =1;
-        //GL_TRIANGLE
+
+        //Half Triangles
         if (renType==0) {
             var ver = 0;
             for (y = 0; y < (num - 1); y++) {
@@ -213,7 +222,7 @@ Rotate Camera with < Up,Down,Left,Right >
                 }
             }
         }
-        //GL_TRIANGLE_STRIP
+        //All Triangles
         if (renType==1) {
             var ver = 0;
             for (y = 0; y < (num - 1); y++) {
@@ -260,9 +269,7 @@ Rotate Camera with < Up,Down,Left,Right >
 
 
     function setTess(ptype) {
-        var x = document.getElementById("myRange").value;
-        var ox;
-        var oy;
+        var x = document.getElementById("tessRange").value;
         document.getElementById("tessval").innerHTML = x;
 
         tess(x,1.0,0.0,0.0);
@@ -272,7 +279,7 @@ Rotate Camera with < Up,Down,Left,Right >
 
     setInterval("draw(ptype);", 40);
     document.onkeydown = handleKeyDown;
-
+    var renType =1;
 
     ptype=gl.TRIANGLES;
     setTess(ptype);
@@ -319,6 +326,9 @@ Rotate Camera with < Up,Down,Left,Right >
     var phaseConstMin = 1.0;
     var phaseConstMax = 2.0;
 
+
+
+
     // Generated Wave Parameters
     var numWaves = 3;
     var steepnessList = [0.159, 0.51, 0.159];
@@ -327,6 +337,29 @@ Rotate Camera with < Up,Down,Left,Right >
     var phaseConstantList = [8.169, 5.2, 8.12];
     var wList = [9.28, 2.48, 7.2];
 
+
+
+    function setW1() {
+        var x = document.getElementById("w1Range").value;
+        document.getElementById("W1A").innerHTML = x;
+        amplitudeList[0]=0.05*x;
+    }
+
+    function setW2() {
+        var x = document.getElementById("w2Range").value;
+        document.getElementById("W2A").innerHTML = x;
+        amplitudeList[1]=0.05*x;
+    }
+
+    function setW3() {
+        var x = document.getElementById("w3Range").value;
+        document.getElementById("W3A").innerHTML = x;
+        amplitudeList[2]=0.05*x;
+    }
+
+    setW1();
+    setW2();
+    setW3();
 
     //Default Scene rotation
     var ax=-110; ///-110
