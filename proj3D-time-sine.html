@@ -120,11 +120,24 @@ Rotate Camera with < Up,Down,Left,Right >
     varying vec3 fNormal;
     varying mat3 invTBN;
 
+    uniform vec3 lightPos;
+    uniform vec3 eye;
+    uniform vec3 kd;
+    uniform vec3 ks;
+    uniform vec3 I;
+    uniform vec4 baseColor;
+    uniform float shininess;
+
     void main(void)
     {
-        // TODO: move things to TBN space to do lighting
+        vec3 R = reflect(-eye, fNormal);
 
-        gl_FragColor = vec4(vCoord[0]*1.5, vCoord[1], 0.5, 1.0);
+        vec3 light = normalize(invTBN * (lightPos - fPosition));
+
+        vec4 diffuse = vec4(kd * max(dot(light, fNormal), 0.0) * I , 1.0) * baseColor;
+        vec3 specular = ks * I * pow(clamp(dot(R, light), 0.0, 1.0), shininess);
+
+        gl_FragColor = diffuse + vec4(specular, 1.0);
     }
 </script>
 
@@ -468,6 +481,15 @@ Rotate Camera with < Up,Down,Left,Right >
         gl.uniform1fv(gl.getUniformLocation(shaderProgram, "phaseConstantList"), new Float32Array(phaseConstantList));
         gl.uniform2fv(gl.getUniformLocation(shaderProgram, "dirList"), new Float32Array(dirList));
         gl.uniform1fv(gl.getUniformLocation(shaderProgram, "wList"), new Float32Array(wList));
+
+        // Yay Lights
+        gl.uniform3f(gl.getUniformLocation(shaderProgram, "lightPos"), 0.0, 0.0, 3.0);
+        gl.uniform3f(gl.getUniformLocation(shaderProgram, "eye"), 1.0, 0.0, 0.0);
+        gl.uniform3f(gl.getUniformLocation(shaderProgram, "kd"), 0.7, 0.7, 0.7);
+        gl.uniform3f(gl.getUniformLocation(shaderProgram, "ks"), 0.0, 0.0, 1.0);
+        gl.uniform3f(gl.getUniformLocation(shaderProgram, "I"), 1.0, 1.0, 1.0);
+        gl.uniform4f(gl.getUniformLocation(shaderProgram, "baseColor"), 0.0, 0.0, 0.6, 1.0);
+        gl.uniform1f(gl.getUniformLocation(shaderProgram, "shininess"), 1.0);
 
         // Clear the canvas
         gl.clearColor(0.5, 0.5, 0.5, 0.9);
