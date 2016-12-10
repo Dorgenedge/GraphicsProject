@@ -151,7 +151,7 @@ Rotate Camera with < Up,Down,Left,Right >
         vec4 diffuse = vec4(kd * max(dot(light, fNormal), 0.0) * I , 1.0) * baseColor;
         vec3 specular = ks * I * pow(clamp(dot(R, light), 0.0, 1.0), shininess);
 
-        gl_FragColor = diffuse + vec4(specular, 1.0) + textureCube(skybox, -R);
+        gl_FragColor = diffuse + vec4(specular, 1.0) + 0.4*textureCube(skybox, -R);
     }
 </script>
 
