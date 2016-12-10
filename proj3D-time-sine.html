@@ -143,15 +143,15 @@ Rotate Camera with < Up,Down,Left,Right >
 
     void main(void)
     {
-        vec3 E = invTBN * eye;
-        vec3 R = reflect(-E, fNormal);
+        vec3 E = normalize(invTBN * eye);
+        vec3 R = reflect(E, fNormal);
 
         vec3 light = normalize(invTBN * (lightPos - fPosition));
 
         vec4 diffuse = vec4(kd * max(dot(light, fNormal), 0.0) * I , 1.0) * baseColor;
         vec3 specular = ks * I * pow(clamp(dot(R, light), 0.0, 1.0), shininess);
 
-        gl_FragColor = diffuse + vec4(specular, 1.0) + textureCube(skybox, vCoords);
+        gl_FragColor = diffuse + vec4(specular, 1.0) + textureCube(skybox, -R);
     }
 </script>
 
