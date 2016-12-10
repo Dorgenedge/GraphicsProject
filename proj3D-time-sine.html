@@ -37,6 +37,10 @@ Rotate Camera with < Up,Down,Left,Right >
     uniform float phaseConstantList[50];
     uniform float wList[50];
     uniform vec2 dirList[50];
+    uniform mat4 projection;
+    uniform mat4 modelview;
+    attribute vec3 coords;
+    varying vec3 vCoords;
 
     varying vec3 vCoord;
     varying vec3 fPosition;
@@ -56,6 +60,11 @@ Rotate Camera with < Up,Down,Left,Right >
         vec3 B = vec3(1, 0, 0);
         vec3 T = vec3(0, 1, 0);
         vec3 N = vec3(0, 0, 1);
+
+        vec4 eyeCoords = modelview * vec4(coords, 1.0);
+        gl_Position = projection * eyeCoords;
+        vCoords = coords;
+
 
         for(int i = 0; i < 5000; i++)
         {
@@ -116,7 +125,8 @@ Rotate Camera with < Up,Down,Left,Right >
 
 <script id="wave-fragment" type="x-shader/x-fragment" >
     precision mediump float;
-    varying vec3 vCoord;
+    varying vec3 vCoords;
+    uniform samplerCube skybox;
 
     varying vec3 fPosition;
     varying vec3 fNormal;
@@ -140,11 +150,13 @@ Rotate Camera with < Up,Down,Left,Right >
         vec4 diffuse = vec4(kd * max(dot(light, fNormal), 0.0) * I , 1.0) * baseColor;
         vec3 specular = ks * I * pow(clamp(dot(R, light), 0.0, 1.0), shininess);
 
-        gl_FragColor = diffuse + vec4(specular, 1.0);
+        gl_FragColor = diffuse + vec4(specular, 1.0) + textureCube(skybox, vCoords);
     }
 </script>
 
 <script>
+
+
     function getShader(gl, id) {
 
         var shaderScript = document.getElementById(id);
@@ -508,7 +520,73 @@ Rotate Camera with < Up,Down,Left,Right >
         // Draw the triangle
         gl.drawElements(ptype, indices.length, gl.UNSIGNED_SHORT, 0);
 
+        function loadSkybox() {
+            var count = 0;
+            var img = new Array(6);
+            var images = ["skybox/skyrender0001.bmp", "skybox/skyrender0002.bmp",
+                "skybox/skyrender0003.bmp", "skybox/skyrender0004.bmp",
+                "skybox/skyrender0005.bmp", "skybox/skyrender0006.bmp", ];
+
+            for(var i = 0; i < 6; i++) {
+                img[i] = new Image();
+                img[i].onload = function() {
+                    count++;
+                    if (count == 6) {
+                        texID = gl.createTexture();
+                        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texID);
+                        var targets = [
+                            gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+                            gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                            gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+                        ];
+                        for (var j = 0; j < 6; j++) {
+                            gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[j]);
+                            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                        }
+                        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+                        draw();
+                    }
+                }
+                img[i].src = images[i];
+            }
+
+        }
+
     }
+    function loadSkybox() {
+        var count = 0;
+        var img = new Array(6);
+        var images = ["skybox/skyrender0001.bmp", "skybox/skyrender0002.bmp",
+            "skybox/skyrender0003.bmp", "skybox/skyrender0004.bmp",
+            "skybox/skyrender0005.bmp", "skybox/skyrender0006.bmp", ];
+
+        for(var i = 0; i < 6; i++) {
+            img[i] = new Image();
+            img[i].onload = function() {
+                count++;
+                if (count == 6) {
+                    texID = gl.createTexture();
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texID);
+                    var targets = [
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+                    ];
+                    for (var j = 0; j < 6; j++) {
+                        gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[j]);
+                        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                    }
+                    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+                    draw();
+                }
+            }
+            img[i].src = images[i];
+        }
+
+    }
+    loadSkybox();
     //GL TYPES
     // POINTS, LINE_STRIP, LINE_LOOP, LINES,
     // TRIANGLE_STRIP,TRIANGLE_FAN, TRIANGLES
